@@ -1,0 +1,29 @@
+.text
+
+.global start
+start:
+    ldr sp, =STACK_TOP
+
+main:
+    mov   r0, #5         @ Set fib arg
+    bl    fib            @ Call fib
+    b     stop           @ Halt CPU
+
+fib:
+    mov   r1, #0         @ fib(0) = 0
+    mov   r2, #1         @ fib(1) = 1
+
+fib_loop:
+    add   r3, r1, r2     @ fib(n) = fib(n-1) + fib(n-2)
+    mov   r1, r2         @ fib(n-1) = fib(n-2)
+    mov   r2, r3         @ fib(n-2) = fib(n)
+    subs  r0, r0, #1     @ Decrement R0
+    beq   fib_end        @ Branch if R0 is 0
+    b     fib_loop       @ Branch always
+
+fib_end:
+    mov   r0, r3         @ Save result in R0
+    bx    lr             @ Return from subroutine
+
+stop:
+    wfi                  @ Halt CPU
