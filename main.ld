@@ -1,6 +1,6 @@
 MEMORY {
-    rom (rx) : ORIGIN = 0x0,       LENGTH = 64M
-    ram (rw) : ORIGIN = 0xF424000, LENGTH = 64M
+    rom (rx)  : ORIGIN = 0x0,        LENGTH = 64M
+    ram (rwx) : ORIGIN = 0x80000000, LENGTH = 64M
 }
 
 SECTIONS {
@@ -10,7 +10,7 @@ SECTIONS {
         main.o (.text)
     } > rom
 
-    STACK_TOP = 0xF424000;
+    STACK_TOP = 0x84000000;
 }
 
 ENTRY(start)

@@ -11,6 +11,8 @@ main:
     mov   r0, #15        @ Set fib arg
     bl    fib            @ Call fib
 
+    bl    stack_push     @ Call stack_push
+
     b     stop           @ Halt CPU
 
 print:
@@ -35,6 +37,16 @@ fib_loop:
 
 fib_end:
     mov   r0, r3         @ Save result in R0
+    bx    lr             @ Return from subroutine
+
+stack_push:
+    mov   r5, #54        @ 'T'
+    stmdb sp!, {r5}      @ Push
+
+stack_pop:
+    ldmfd sp!, {r4}      @ Pop
+
+stack_end:
     bx    lr             @ Return from subroutine
 
 stop:

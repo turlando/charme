@@ -11,7 +11,7 @@ ASFLAGS := -march armv7-a   \
 DBFLAGS := -ex 'target remote localhost:9990'
 QEFLAGS := -cpu cortex-a15                 \
            -machine vexpress-a15           \
-           -m 256M                         \
+           -m 64M                          \
            -nographic                      \
            -audiodev none,id=0             \
            -serial tcp::9991,server,nowait \
