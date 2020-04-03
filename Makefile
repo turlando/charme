@@ -4,17 +4,18 @@ OC := arm-none-eabi-objcopy
 DB := arm-none-eabi-gdb
 DD := dd
 QE := qemu-system-arm
+NC := nc
 
 ASFLAGS := -march armv7-a   \
            -mcpu cortex-a15
-DBFLAGS := -ex 'target remote localhost:9999'
-QEFLAGS := -cpu cortex-a15       \
-           -machine vexpress-a15 \
-           -m 256M               \
-           -nographic            \
-           -audiodev none,id=0   \
-           -serial /dev/null     \
-           -gdb tcp::9999        \
+DBFLAGS := -ex 'target remote localhost:9990'
+QEFLAGS := -cpu cortex-a15                 \
+           -machine vexpress-a15           \
+           -m 256M                         \
+           -nographic                      \
+           -audiodev none,id=0             \
+           -serial tcp::9991,server,nowait \
+           -gdb tcp::9990                  \
            -S
 
 main.o: main.s
@@ -40,9 +41,12 @@ run: rom.bin
 gdb: main.elf
 	$(DB) $(DBFLAGS) $<
 
+.PHONY: serial
+serial:
+	$(NC) localhost 9991
+
 .PHONY: clean
 clean:
-	$(RM) main
 	$(RM) main.o
 	$(RM) main.elf
 	$(RM) main.bin

@@ -5,9 +5,21 @@ start:
     ldr sp, =STACK_TOP
 
 main:
-    mov   r0, #5         @ Set fib arg
+    mov   r0, #65        @ Set print arg, 'A'
+    bl    print          @ Call print
+
+    mov   r0, #15        @ Set fib arg
     bl    fib            @ Call fib
+
     b     stop           @ Halt CPU
+
+print:
+    mov   r4, #0x1C000000     @ base CS3 addr
+    mov   r5, #0x90000        @ UART0 offset
+    str   r0, [r4, r5]        @ store r0 in [r4 + r5]
+
+print_end:
+    bx    lr             @ Return from subroutine
 
 fib:
     mov   r1, #0         @ fib(0) = 0
@@ -26,4 +38,4 @@ fib_end:
     bx    lr             @ Return from subroutine
 
 stop:
-    wfi                  @ Halt CPU
+    b     stop           @ "halt" CPU
