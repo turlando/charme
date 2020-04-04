@@ -1,15 +1,8 @@
-# pico-arm
+# charme
 
-## Prerequisites
+Lisp to ARM Assembly compiler.
 
-* make
-* nc
-* qemu-system-arm
-* arm-none-eabi-gcc
-* arm-none-eabi-binutils
-* arm-none-eabi-gdb
-
-## Architecture
+## Platform
 
 * [ARM® CoreTile Express A15x2](cpu-datasheet)
 * [ARM® Motherboard Express μATX](board-datasheet)
