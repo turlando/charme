@@ -1,5 +1,3 @@
-*~
-*.swp
-tarballs/
 .stack-work/
 stack.yaml.lock
+charme.cabal

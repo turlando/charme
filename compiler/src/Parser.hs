@@ -1,32 +1,59 @@
 module Parser where
 
-import Import
-import Ast (Ast (..))
-import Text.Megaparsec
-import Text.Megaparsec.Byte
-import Control.Monad.Combinators
-import qualified Control.Monad.Combinators.NonEmpty as NE
-import Data.ByteString.Internal (c2w)
+import           Control.Applicative        ((<|>), empty)
+import qualified Control.Monad.Combinators  as M
+import           Data.Text                  (Text)
+import qualified Data.Text                  as Text
+import           Data.Void                  (Void)
+import           Syntax                     (Literal (..))
+import qualified Text.Megaparsec            as P
+import qualified Text.Megaparsec.Char       as C
+import qualified Text.Megaparsec.Char.Lexer as L
 
-type Parser = Parsec Void ByteString
-type Err = ParseErrorBundle ByteString Void
+type Parser = P.Parsec Void Text
+type Error  = P.ParseErrorBundle Text Void
 
-parse :: ByteString -> Either Err Ast
-parse = runParser parser "filename"
+commentString :: Text
+commentString = ";"
 
-parser :: Parser Ast
-parser = parseSymbol
-     <|> parseApp
+stringEnclosingChar :: Char
+stringEnclosingChar = '"'
 
-parseSymbol :: Parser Ast
-parseSymbol = fmap ASymbol $ chunk "foo"
+-- A parser that can parse characters to be ignored,
+-- including whitespaces and comments.
+-- In this case C.space1 is parsing one or more space
+-- characters; L.skipLineComment is parsing anything
+-- starting with commentChar; block comments are not
+-- implemented.
+spaceConsumer :: Parser ()
+spaceConsumer = L.space C.space1
+                        (L.skipLineComment commentString)
+                        empty
 
-parseApp :: Parser Ast
-parseApp = do
-  _ <- chunk "(" >> skipMany whitespace
-  elems <- NE.some parser
-  _ <- skipMany whitespace >> chunk ")"
-  pure (AApp elems)
+-- Wrapper that picks up all trailing white space
+-- using the supplied space consumer.
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme spaceConsumer
 
-whitespace = let predicate c = c == (c2w ' ') -- || c == '\t' || c == '\n'
-             in void (takeWhile1P Nothing predicate)
+-- Parser that matches text and picks up all trailing
+-- white space.
+symbol :: Text -> Parser Text
+symbol = L.symbol spaceConsumer
+
+integerLiteral :: Parser Integer
+integerLiteral = lexeme L.decimal
+
+signedIntegerLiteral :: Parser Integer
+signedIntegerLiteral = L.signed (pure ()) integerLiteral
+
+stringLiteral :: Parser Text
+stringLiteral = fmap Text.pack
+                $ C.char stringEnclosingChar
+                  *> M.manyTill L.charLiteral (C.char stringEnclosingChar)
+
+literal :: Parser Literal
+literal = fmap LiteralInteger signedIntegerLiteral
+      <|> fmap LiteralString stringLiteral
+
+parse :: Text -> Either Error Literal
+parse = P.runParser literal "filename"

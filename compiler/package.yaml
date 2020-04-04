@@ -7,7 +7,7 @@ maintainer:          example@example.com
 copyright:           2020 Author name here
 
 extra-source-files:
-- README.md
+- README.markdown
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -19,11 +19,10 @@ extra-source-files:
 description:         Please see the README on Github at <https://github.com/githubuser/charme#readme>
 
 dependencies:
-- base >= 4.11 && < 10
-- rio >= 0.1.12.0
-- megaparsec
+- base
+- text
 - parser-combinators
-- bytestring
+- megaparsec
 
 ghc-options:
 - -Wall
@@ -36,7 +35,6 @@ ghc-options:
 
 default-extensions:
 - OverloadedStrings
-- NoImplicitPrelude
 
 library:
   source-dirs: src
