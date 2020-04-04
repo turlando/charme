@@ -1,0 +1,54 @@
+;; Types
+;; -----
+
+;; Positive Integer Literal
+42
+
+;; Negative Integer Literal
+-23
+
+;; String Literal
+"asd"
+
+;; List
+'(1 2 3)
+
+
+;; Operators
+;; ---------
+
+;; Addition
++
+
+;; Difference
+-
+
+;; Multiplication
+*
+
+;; Greater Than
+>
+
+
+;; Special Forms
+;; -------------
+
+;; Constant definition
+(define x y)
+
+;; Function definition
+(lambda (x y) (+ x y))
+
+;; Function Application (not really a special form)
+(f 1 2 3)
+
+
+;; Examples
+;; --------
+
+(define fib (lambda (n x0 x1)
+                    (if (> n 0)
+                      (fib (- n 1) x1 (+ x0 x1))
+                      x1)))
+
+(fib 10 0 1)
