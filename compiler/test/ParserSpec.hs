@@ -19,3 +19,5 @@ spec = do
       parse "\"foo\"" `shouldBe` Right (LiteralString "foo")
     it "can parse \"bar\"" $ do
       parse "\"bar\"" `shouldBe` Right (LiteralString "bar")
+    it "can parse \"\"qu\\\"ux\"" $ do
+      parse "\"qu\\\"ux\"" `shouldBe` Right (LiteralString "qu\"ux")
