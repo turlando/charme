@@ -5,7 +5,7 @@ import qualified Control.Monad.Combinators  as M
 import           Data.Text                  (Text)
 import qualified Data.Text                  as Text
 import           Data.Void                  (Void)
-import           Syntax                     (Literal (..))
+import           Syntax                     (Syntax (..))
 import qualified Text.Megaparsec            as P
 import qualified Text.Megaparsec.Char       as C
 import qualified Text.Megaparsec.Char.Lexer as L
@@ -35,25 +35,27 @@ spaceConsumer = L.space C.space1
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme spaceConsumer
 
--- Parser that matches text and picks up all trailing
--- white space.
-symbol :: Text -> Parser Text
-symbol = L.symbol spaceConsumer
+atom :: Parser Text
+atom = do
+  first <- C.letterChar
+  rest  <- fmap Text.pack $ M.many C.alphaNumChar
+  return $ Text.cons first rest
 
-integerLiteral :: Parser Integer
-integerLiteral = lexeme L.decimal
+integer :: Parser Integer
+integer = lexeme L.decimal
 
-signedIntegerLiteral :: Parser Integer
-signedIntegerLiteral = L.signed (pure ()) integerLiteral
+signedInteger :: Parser Integer
+signedInteger = L.signed (pure ()) integer
 
-stringLiteral :: Parser Text
-stringLiteral = fmap Text.pack
-                $ C.char stringEnclosingChar
-                  *> M.manyTill L.charLiteral (C.char stringEnclosingChar)
+string :: Parser Text
+string = fmap Text.pack
+         $ C.char stringEnclosingChar
+         *> M.manyTill L.charLiteral (C.char stringEnclosingChar)
 
-literal :: Parser Literal
-literal = fmap LiteralInteger signedIntegerLiteral
-      <|> fmap LiteralString stringLiteral
+syntax :: Parser Syntax
+syntax = fmap SyntaxAtom    atom
+     <|> fmap SyntaxInteger signedInteger
+     <|> fmap SyntaxString  string
 
-parse :: Text -> Either Error Literal
-parse = P.runParser literal "filename"
+parse :: Text -> Either Error Syntax
+parse = P.runParser syntax "filename"
