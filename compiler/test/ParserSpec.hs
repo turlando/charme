@@ -25,3 +25,13 @@ spec = do
       parse "\"bar\"" `shouldBe` Right (SyntaxString "bar")
     it "can parse \"\"qu\\\"ux\"" $ do
       parse "\"qu\\\"ux\"" `shouldBe` Right (SyntaxString "qu\"ux")
+
+  describe "parse heterogeneous lists" $ do
+    it "can parse (foo)" $ do
+      parse "(foo)" `shouldBe` Right (SyntaxList [SyntaxAtom "foo"])
+    it "can parse (foo \"bar\")" $ do
+      parse "(foo \"bar\")" `shouldBe`
+        Right (SyntaxList [SyntaxAtom "foo", SyntaxString "bar"])
+    it "can parse (foo \"bar\" 23)" $ do
+      parse "(foo \"bar\" 23)" `shouldBe`
+        Right (SyntaxList [SyntaxAtom "foo", SyntaxString "bar", SyntaxInteger 23])

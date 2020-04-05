@@ -13,11 +13,17 @@ import qualified Text.Megaparsec.Char.Lexer as L
 type Parser = P.Parsec Void Text
 type Error  = P.ParseErrorBundle Text Void
 
-commentString :: Text
-commentString = ";"
+inlineCommentToken :: Text
+inlineCommentToken = ";"
 
-stringEnclosingChar :: Char
-stringEnclosingChar = '"'
+stringEnclosingToken :: Char
+stringEnclosingToken = '"'
+
+openParensToken :: Text
+openParensToken = "("
+
+closedParensToken :: Text
+closedParensToken = ")"
 
 -- A parser that can parse characters to be ignored,
 -- including whitespaces and comments.
@@ -27,13 +33,18 @@ stringEnclosingChar = '"'
 -- implemented.
 spaceConsumer :: Parser ()
 spaceConsumer = L.space C.space1
-                        (L.skipLineComment commentString)
+                        (L.skipLineComment inlineCommentToken)
                         empty
 
 -- Wrapper that picks up all trailing white space
 -- using the supplied space consumer.
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme spaceConsumer
+
+-- Parser that matches text and picks up all trailing
+-- white space.
+symbol :: Text -> Parser Text
+symbol = L.symbol spaceConsumer
 
 atom :: Parser Text
 atom = do
@@ -49,13 +60,20 @@ signedInteger = L.signed (pure ()) integer
 
 string :: Parser Text
 string = fmap Text.pack
-         $ C.char stringEnclosingChar
-         *> M.manyTill L.charLiteral (C.char stringEnclosingChar)
+         $ C.char stringEnclosingToken
+         *> M.manyTill L.charLiteral (C.char stringEnclosingToken)
+
+list :: Parser [Syntax]
+list = M.between
+       (symbol openParensToken)
+       (symbol closedParensToken)
+       $ M.sepBy syntax C.space1
 
 syntax :: Parser Syntax
 syntax = fmap SyntaxAtom    atom
      <|> fmap SyntaxInteger signedInteger
      <|> fmap SyntaxString  string
+     <|> fmap SyntaxList    list
 
 parse :: Text -> Either Error Syntax
 parse = P.runParser syntax "filename"
