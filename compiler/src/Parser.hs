@@ -47,10 +47,9 @@ symbol :: Text -> Parser Text
 symbol = L.symbol spaceConsumer
 
 atom :: Parser Text
-atom = do
-  first <- C.letterChar
-  rest  <- fmap Text.pack $ M.many C.alphaNumChar
-  return $ Text.cons first rest
+atom = Text.cons
+       <$> C.letterChar
+       <*> (fmap Text.pack $ M.many C.alphaNumChar)
 
 integer :: Parser Integer
 integer = lexeme L.decimal
