@@ -3,7 +3,7 @@ module Parser where
 import           Control.Applicative        ((<|>), empty)
 import qualified Control.Monad.Combinators  as M
 import           Data.Text                  (Text)
-import qualified Data.Text                  as Text
+import qualified Data.Text                  as T
 import           Data.Void                  (Void)
 import           Syntax                     (Syntax (..))
 import qualified Text.Megaparsec            as P
@@ -47,9 +47,9 @@ symbol :: Text -> Parser Text
 symbol = L.symbol spaceConsumer
 
 atom :: Parser Text
-atom = Text.cons
+atom = T.cons
        <$> C.letterChar
-       <*> (fmap Text.pack $ M.many C.alphaNumChar)
+       <*> (fmap T.pack $ M.many C.alphaNumChar)
 
 integer :: Parser Integer
 integer = lexeme L.decimal
@@ -58,7 +58,7 @@ signedInteger :: Parser Integer
 signedInteger = L.signed (pure ()) integer
 
 string :: Parser Text
-string = fmap Text.pack
+string = fmap T.pack
          $ C.char stringEnclosingToken
          *> M.manyTill L.charLiteral (C.char stringEnclosingToken)
 
