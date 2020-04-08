@@ -16,8 +16,8 @@ type Error  = P.ParseErrorBundle Text Void
 inlineCommentToken :: Text
 inlineCommentToken = ";"
 
-stringEnclosingToken :: Char
-stringEnclosingToken = '"'
+stringEnclosingToken :: Text
+stringEnclosingToken = "\""
 
 openParensToken :: Text
 openParensToken = "("
@@ -59,8 +59,8 @@ signedInteger = L.signed (pure ()) integer
 
 string :: Parser Text
 string = fmap T.pack
-         $ C.char stringEnclosingToken
-         *> M.manyTill L.charLiteral (C.char stringEnclosingToken)
+         $ C.string stringEnclosingToken
+         *> M.manyTill L.charLiteral (C.string stringEnclosingToken)
 
 list :: Parser [Syntax]
 list = M.between
