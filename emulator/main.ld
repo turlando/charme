@@ -10,6 +10,10 @@ SECTIONS {
         main.o (.text)
     } > rom
 
+    .data : AT (ADDR (.text) + SIZEOF (.text)) {
+        main.o (.data);
+    } > rom
+
     STACK_TOP = 0x84000000;
 }
 
