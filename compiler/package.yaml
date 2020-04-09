@@ -59,6 +59,8 @@ tests:
     dependencies:
     - charme
     - hspec
+    - hspec-megaparsec
+    - text
 
     ghc-options:
     - -threaded

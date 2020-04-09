@@ -1,41 +1,43 @@
 module ParserSpec (spec) where
 
-import Parser
-import Syntax
-import Test.Hspec
+import Data.Text             (Text, unpack)
+import Parser                (parse)
+import Syntax                (Syntax (..))
+import Test.Hspec            (Spec, SpecWith, describe, it)
+import Test.Hspec.Megaparsec (shouldParse, shouldFailOn)
+
+canParse :: Text -> Syntax -> SpecWith ()
+canParse from to = it ("can parse: " <> unpack from)
+                   $ shouldParse (parse from) to
+
+cantParse :: Text -> SpecWith ()
+cantParse from = it ("can't parse: " <> unpack from)
+                 $ shouldFailOn parse from
 
 spec :: Spec
 spec = do
-  describe "parse atoms" $ do
-    it "can parse foo" $ do parse "foo" `shouldBe` Right (SyntaxAtom "foo")
-    it "can parse BAR" $ do parse " BAR " `shouldBe` Right (SyntaxAtom "BAR")
+  describe "literals" $ do
 
-  describe "parse integers without sign" $ do
-    it "can parse a number" $ do
-      parse "42" `shouldBe` Right (SyntaxInteger 42)
-    it "can parse a number wrapped in spaces" $ do
-      parse " 23 " `shouldBe` Right (SyntaxInteger 23)
+    describe "atoms" $ do
+      canParse "foo" $ SyntaxAtom "foo"
+      canParse "BAR" $ SyntaxAtom "BAR"
+      canParse " foobar " $ SyntaxAtom "foobar"
 
-  describe "parse integers with sign" $ do
-    it "can parse a negative number" $ do
-      parse "-42" `shouldBe` Right (SyntaxInteger (-42))
-    it "can parse a negative number wrapped in spaces" $ do
-      parse " -23 " `shouldBe` Right (SyntaxInteger (-23))
+    describe "unsigned integers" $ do
+      canParse "42" $ SyntaxInteger 42
+      canParse " 23 " $ SyntaxInteger 23
 
-  describe "parse strings" $ do
-    it "can parse \"foo\"" $ do
-      parse "\"foo\"" `shouldBe` Right (SyntaxString "foo")
-    it "can parse \"bar\"" $ do
-      parse "\"bar\"" `shouldBe` Right (SyntaxString "bar")
-    it "can parse \"\"qu\\\"ux\"" $ do
-      parse "\"qu\\\"ux\"" `shouldBe` Right (SyntaxString "qu\"ux")
+    describe "signed integers" $ do
+      canParse "-42" $ SyntaxInteger (-42)
+      canParse " -23 " $ SyntaxInteger (-23)
+      cantParse "- 69420"
 
-  describe "parse heterogeneous lists" $ do
-    it "can parse (foo)" $ do
-      parse "(foo)" `shouldBe` Right (SyntaxList [SyntaxAtom "foo"])
-    it "can parse (foo \"bar\")" $ do
-      parse "(foo \"bar\")" `shouldBe`
-        Right (SyntaxList [SyntaxAtom "foo", SyntaxString "bar"])
-    it "can parse (foo \"bar\" 23)" $ do
-      parse "(foo \"bar\" 23)" `shouldBe`
-        Right (SyntaxList [SyntaxAtom "foo", SyntaxString "bar", SyntaxInteger 23])
+    describe "strings" $ do
+      canParse "\"foo\"" $ SyntaxString "foo"
+      canParse "\"bar\"" $ SyntaxString "bar"
+      canParse "\"qu\\\"ux\"" $ SyntaxString "qu\"ux"
+
+  describe "heterogeneous lists" $ do
+    canParse "(foo)" $ SyntaxList [SyntaxAtom "foo"]
+    canParse "(foo 23)" $ SyntaxList [SyntaxAtom "foo", SyntaxInteger 23]
+    canParse "(foo \"bar\")" $ SyntaxList [SyntaxAtom "foo", SyntaxString "bar"]
