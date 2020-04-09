@@ -69,7 +69,8 @@ list = M.between
        $ M.sepBy syntax C.space1
 
 syntax :: Parser Syntax
-syntax = fmap SyntaxAtom    atom
+syntax = spaceConsumer
+      >> fmap SyntaxAtom    atom
      <|> fmap SyntaxInteger signedInteger
      <|> fmap SyntaxString  string
      <|> fmap SyntaxList    list
