@@ -36,11 +36,6 @@ spaceConsumer = L.space C.space1
                         (L.skipLineComment inlineCommentToken)
                         empty
 
--- Wrapper that picks up all trailing white space
--- using the supplied space consumer.
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme spaceConsumer
-
 -- Parser that matches text and picks up all trailing
 -- white space.
 symbol :: Text -> Parser Text
@@ -52,15 +47,12 @@ atom = T.cons
        <*> (fmap T.pack $ M.many C.alphaNumChar)
 
 integer :: Parser Integer
-integer = lexeme L.decimal
-
-signedInteger :: Parser Integer
-signedInteger = L.signed (pure ()) integer
+integer = L.signed (pure ()) L.decimal
 
 string :: Parser Text
 string = fmap T.pack
          $ C.string stringEnclosingToken
-         *> M.manyTill L.charLiteral (C.string stringEnclosingToken)
+         >> M.manyTill L.charLiteral (C.string stringEnclosingToken)
 
 list :: Parser [Syntax]
 list = M.between
@@ -71,7 +63,7 @@ list = M.between
 syntax :: Parser Syntax
 syntax = spaceConsumer
       >> fmap SyntaxAtom    atom
-     <|> fmap SyntaxInteger signedInteger
+     <|> fmap SyntaxInteger integer
      <|> fmap SyntaxString  string
      <|> fmap SyntaxList    list
 
