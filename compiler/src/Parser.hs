@@ -13,15 +13,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 type Parser = P.Parsec Void Text
 type Error  = P.ParseErrorBundle Text Void
 
-stringEnclosingToken :: Text
-stringEnclosingToken = "\""
-
-openParensToken :: Text
-openParensToken = "("
-
-closedParensToken :: Text
-closedParensToken = ")"
-
 -- A parser that can parse characters to be ignored,
 -- including whitespaces and comments.
 -- In this case C.space1 is parsing one or more space
@@ -51,8 +42,8 @@ integer = L.signed (pure ()) L.decimal
 
 string :: Parser Text
 string = fmap T.pack
-         $ C.string stringEnclosingToken
-         >> M.manyTill L.charLiteral (C.string stringEnclosingToken)
+         $ C.string "\""
+         >> M.manyTill L.charLiteral (C.string "\"")
 
 list :: Parser [Syntax]
 list = parens $ M.sepBy syntax C.space1
