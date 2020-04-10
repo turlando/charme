@@ -13,9 +13,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 type Parser = P.Parsec Void Text
 type Error  = P.ParseErrorBundle Text Void
 
-inlineCommentToken :: Text
-inlineCommentToken = ";"
-
 stringEnclosingToken :: Text
 stringEnclosingToken = "\""
 
@@ -33,13 +30,16 @@ closedParensToken = ")"
 -- implemented.
 spaceConsumer :: Parser ()
 spaceConsumer = L.space C.space1
-                        (L.skipLineComment inlineCommentToken)
+                        (L.skipLineComment ";")
                         empty
 
 -- Parser that matches text and picks up all trailing
 -- white space.
 symbol :: Text -> Parser Text
 symbol = L.symbol spaceConsumer
+
+parens :: Parser a -> Parser a
+parens = M.between (symbol "(") (symbol ")")
 
 atom :: Parser Text
 atom = T.cons
@@ -55,10 +55,7 @@ string = fmap T.pack
          >> M.manyTill L.charLiteral (C.string stringEnclosingToken)
 
 list :: Parser [Syntax]
-list = M.between
-       (symbol openParensToken)
-       (symbol closedParensToken)
-       $ M.sepBy syntax C.space1
+list = parens $ M.sepBy syntax C.space1
 
 syntax :: Parser Syntax
 syntax = spaceConsumer
