@@ -5,7 +5,7 @@ import qualified Control.Monad.Combinators  as M
 import           Data.Text                  (Text)
 import qualified Data.Text                  as T
 import           Data.Void                  (Void)
-import           Syntax                     (Syntax (..))
+import           Syntax                     (Expr (..))
 import qualified Text.Megaparsec            as P
 import qualified Text.Megaparsec.Char       as C
 import qualified Text.Megaparsec.Char.Lexer as L
@@ -42,11 +42,11 @@ string = fmap T.pack
          $ C.string "\""
          >> M.manyTill L.charLiteral (C.string "\"")
 
-syntax :: Parser Syntax
+syntax :: Parser Expr
 syntax = spaceConsumer
-      >> fmap SyntaxAtom    atom
-     <|> fmap SyntaxInteger integer
-     <|> fmap SyntaxString  string
+      >> fmap EAtom    atom
+     <|> fmap EInteger integer
+     <|> fmap EString  string
 
-parse :: Text -> Either Error Syntax
+parse :: Text -> Either Error Expr
 parse = P.runParser syntax "filename"

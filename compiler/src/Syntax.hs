@@ -2,7 +2,7 @@ module Syntax where
 
 import Data.Text (Text)
 
-data Syntax = SyntaxAtom    Text
-            | SyntaxInteger Integer
-            | SyntaxString  Text
+data Expr = EAtom    Text
+          | EInteger Integer
+          | EString  Text
             deriving (Eq, Show)
