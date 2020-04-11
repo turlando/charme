@@ -29,9 +29,6 @@ spaceConsumer = L.space C.space1
 symbol :: Text -> Parser Text
 symbol = L.symbol spaceConsumer
 
-parens :: Parser a -> Parser a
-parens = M.between (symbol "(") (symbol ")")
-
 atom :: Parser Text
 atom = T.cons
        <$> C.letterChar
@@ -45,15 +42,11 @@ string = fmap T.pack
          $ C.string "\""
          >> M.manyTill L.charLiteral (C.string "\"")
 
-list :: Parser [Syntax]
-list = parens $ M.sepBy syntax C.space1
-
 syntax :: Parser Syntax
 syntax = spaceConsumer
       >> fmap SyntaxAtom    atom
      <|> fmap SyntaxInteger integer
      <|> fmap SyntaxString  string
-     <|> fmap SyntaxList    list
 
 parse :: Text -> Either Error Syntax
 parse = P.runParser syntax "filename"

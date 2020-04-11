@@ -36,15 +36,3 @@ spec = do
       canParse "\"foo\"" $ SyntaxString "foo"
       canParse "\"bar\"" $ SyntaxString "bar"
       canParse "\"qu\\\"ux\"" $ SyntaxString "qu\"ux"
-
-  describe "lists" $ do
-    describe "flat" $ do
-      canParse "(foo)" $ SyntaxList [SyntaxAtom "foo"]
-      canParse "(42 -23)" $ SyntaxList [SyntaxInteger 42, SyntaxInteger (-23)]
-      canParse "(foo \"bar\")" $ SyntaxList [SyntaxAtom "foo", SyntaxString "bar"]
-
-    describe "nested" $ do
-      canParse "(foo (bar))" $
-        SyntaxList [SyntaxAtom "foo", SyntaxList [SyntaxAtom "bar"]]
-      canParse "((foo bar))" $
-        SyntaxList [SyntaxList [SyntaxAtom "foo", SyntaxAtom "bar"]]
