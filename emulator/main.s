@@ -53,7 +53,7 @@ fib_loop:
     add   r3, r1, r2     @ fib(n) = fib(n-1) + fib(n-2)
     mov   r1, r2         @ fib(n-1) = fib(n-2)
     mov   r2, r3         @ fib(n-2) = fib(n)
-    sub   r0, r0, #1     @ Decrement R0
+    subs  r0, r0, #1     @ Decrement R0
     beq   fib_end        @ Branch if R0 is 0
     b     fib_loop       @ Branch always
 
